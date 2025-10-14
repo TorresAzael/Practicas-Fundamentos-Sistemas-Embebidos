@@ -1,0 +1,71 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ## #############################################################
+#
+# Author: Mauricio Matamoros
+# Date:
+#
+# ## ############################################################
+import smbus2
+import struct
+import time
+
+import matplotlib.pyplot as plt
+import csv
+from datetime import datetime
+# RP2040 I2C device address
+SLAVE_ADDR = 0x0A # I2C Address of RP2040
+
+# Name of the file in which the log is kept
+LOG_FILE = './temp.log'
+
+# Initialize the I2C bus;
+# RPI version 1 requires smbus.SMBus(0)
+i2c = smbus2.SMBus(1)
+def readTemperature():
+	try:
+		msg = smbus2.i2c_msg.read(SLAVE_ADDR, 4)
+		i2c.i2c_rdwr(msg)  # Performs write (read request)
+		data = list(msg)   # Converts stream to list
+		# list to array of bytes (required to decode)
+		ba = bytearray()
+		for c in data:
+			ba.append(int(c))
+		temp = struct.unpack('<f',ba)
+		temp = round(temp[0],2)
+		return temp
+	except:
+		return None
+
+def read_Date_Today():
+	try:
+		fecha = datetime.now()
+		return fecha
+	except:
+		print('Problema con la fecha!!!\n')
+		return None
+
+def log_temp_date(temperature, date):
+	try:
+		with open(LOG_FILE, "w") as fp:
+			fp.write('{},{}:{}:{} \n'.format(temperature, date.hour, date.minute, date.second))
+	except:
+		return
+
+def main():
+	while True:
+		try:
+			cTemp = readTemperature()
+			tDate = read_Date_Today()
+
+			log_temp_date(cTemp, tDate)
+
+			print('Temperatura recibida:{varTemp},{varHrs}:{varMinu}:{varSeg}'
+					.format(varTemp=cTemp, varHrs=tDate.hour, varMinu=tDate.minute,varSeg=tDate.second))
+			time.sleep(1)
+
+		except KeyboardInterrupt:
+			return
+
+if __name__ == '__main__':
+	main()
