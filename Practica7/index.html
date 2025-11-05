@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Control LCD - Raspberry Pi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="number"], input[type="text"], select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+        .lcd-preview { background-color: black; color: #00FF00; padding: 10px; border-radius: 5px; margin-top: 20px; font-family: 'Courier New', Courier, monospace; font-size: 1.5em; white-space: pre; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Control de Display LCD (Raspberry Pi)</h2>
+
+        <h3>Vista Previa del LCD (16x2)</h3>
+        <div class="lcd-preview">
+            Línea 1: {{ buffer[0] | default('') | ljust(16, ' ') }}<br>
+            Línea 2: {{ buffer[1] | default('') | ljust(16, ' ') }}
+        </div>
+
+        <form method="POST">
+            <h3>Configuración de Marquesina</h3>
+            
+            <label for="line1_text">Texto de Marquesina:</label>
+            <input type="text" id="line1_text" name="line1_text" value="{{ settings.line1_text }}" required>
+
+            <label for="direction">Dirección:</label>
+            <select id="direction" name="direction">
+                <option value="left" {% if settings.direction == 'left' %}selected{% endif %}>Izquierda</option>
+                <option value="right" {% if settings.direction == 'right' %}selected{% endif %}>Derecha</option>
+            </select>
+
+            <label for="speed">Velocidad (Segundos entre paso, ej: 0.3):</label>
+            <input type="number" id="speed" name="speed" step="0.05" min="0.05" value="{{ settings.speed }}" required>
+
+            <h3>Configuración de Temperatura</h3>
+
+            <label for="scale">Escala a Mostrar:</label>
+            <select id="scale" name="scale">
+                <option value="celsius" {% if settings.scale == 'celsius' %}selected{% endif %}>Centígrada (°C)</option>
+                <option value="fahrenheit" {% if settings.scale == 'fahrenheit' %}selected{% endif %}>Fahrenheit (°F)</option>
+                <option value="both" {% if settings.scale == 'both' %}selected{% endif %}>Ambas (°C y °F)</option>
+            </select>
+
+            <button type="submit">Aplicar Cambios</button>
+        </form>
+    </div>
+</body>
+</html>
